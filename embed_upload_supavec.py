@@ -19,7 +19,7 @@ CHUNK_SIZE = 2048
 
 SUPABASE_URL = settings.supabase_url
 SUPABASE_KEY = settings.supabase_key
-TABLE_NAME = "hope_communities"
+TABLE_NAME = "hopecommunities"
 
 # Instantiate clients
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)

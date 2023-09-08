@@ -85,12 +85,10 @@ logger = configure_logging()
 # Context variable for RedisChatMessageHistory
 session_var = ContextVar("session_var", default=None)
 
-message_queue = Queue(maxsize=1)
-
-last_output = None 
+message_queue = Queue(maxsize=1) 
 
 def get_session():
-    return RedisChatMessageHistory(session_id=str(uuid.uuid4()), ttl=2400)
+    return RedisChatMessageHistory(session_id=str(uuid.uuid4()), ttl=None)
 
 class ChatInput(BaseModel):
     text: constr(min_length=2, max_length=1000, to_lower=True, strip_whitespace=True)
@@ -133,7 +131,7 @@ class RedisChatMessageHistory:
         redis_chat_client.delete(self.key)
 
 def init_chat_session():
-    return RedisChatMessageHistory(session_id=str(uuid.uuid4()), ttl=2400)
+    return RedisChatMessageHistory(session_id=str(uuid.uuid4()), ttl=None)
 
 # Function for creating prompt messages
 def create_prompt_messages(input_message, latest_messages):
@@ -158,8 +156,7 @@ async def add_session(request: Request, call_next):
     return response
 
 @app.get("/chat")
-async def chat(input_message: str, session: RedisChatMessageHistory = Depends(get_session)):
-    global last_output 
+async def chat(input_message: str, session: RedisChatMessageHistory = Depends(get_session)): 
     await message_queue.put(input_message)
     input_message = await message_queue.get()
     
@@ -173,7 +170,7 @@ async def chat(input_message: str, session: RedisChatMessageHistory = Depends(ge
     llm = ChatOpenAI(verbose=True, openai_api_key=OPENAI_API_KEY, model="gpt-3.5-turbo", temperature=0)
     convers_memory = ConversationBufferWindowMemory(human_prefix='human', ai_prefix='AI', memory_key="chat_history", return_messages=True, k=1)
     # Initialize vector store and memory
-    vectorstore = SupabaseVectorStore (client=SUPABASE_CLIENT, embedding=EMBEDDING_CLIENT, table_name='hope_communities', query_name='match_documents')
+    vectorstore = SupabaseVectorStore (client=SUPABASE_CLIENT, embedding=EMBEDDING_CLIENT, table_name='documents', query_name='match_documents')
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=vectorstore.as_retriever())
     tools = [
             Tool(name='Knowledge Base', func=qa.run, description='use this tool when answering all questions to retrieve relevant documents for user query then provide the most relevant and useful piece of information, answer as a chatbot for a website(Hope Communities) whose knowledge-store you have acess to'),
