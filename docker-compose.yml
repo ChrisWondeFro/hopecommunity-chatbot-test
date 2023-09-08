@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+
+  web:
+
+    build: .
+    
+    # Specify port 8080 to match EXPOSE in Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8080  
+
+    volumes:
+      - .:/app
+
+    environment:
+      - PORT=8080
