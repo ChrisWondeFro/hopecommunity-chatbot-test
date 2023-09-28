@@ -66,7 +66,7 @@ EMBEDDING_CLIENT = OpenAIEmbeddings(model="text-embedding-ada-002", openai_api_k
 
 # Initialize  redis clients
 cache_conn_pool = Redis(connection_pool=BlockingConnectionPool(host=REDIS_CACHE_HOST, port=REDIS_CACHE_PORT, password=REDIS_CACHE_PW, max_connections=2, timeout=20))
-redis_cache = RedisCache(cache_conn_pool)
+redis_cache = RedisCache(cache_conn_pool, ttl=604800)
 
 llm_string = "gpt-3.5-turbo"
 
