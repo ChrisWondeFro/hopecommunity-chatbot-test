@@ -65,7 +65,7 @@ SUPABASE_CLIENT = create_client(SUPABASE_URL, SUPABASE_KEY)
 EMBEDDING_CLIENT = OpenAIEmbeddings(model="text-embedding-ada-002", openai_api_key=OPENAI_API_KEY)
 
 # Initialize  redis clients
-cache_conn_pool = Redis(connection_pool=BlockingConnectionPool(host=REDIS_CACHE_HOST, port=REDIS_CACHE_PORT, password=REDIS_CACHE_PW, max_connections=200, timeout=20))
+cache_conn_pool = Redis(connection_pool=BlockingConnectionPool(host=REDIS_CACHE_HOST, port=REDIS_CACHE_PORT, password=REDIS_CACHE_PW, max_connections=2, timeout=20))
 redis_cache = RedisCache(cache_conn_pool)
 
 llm_string = "gpt-3.5-turbo"
@@ -94,7 +94,7 @@ def configure_logging():
 logger = configure_logging()  
 
 session_id=str(uuid.uuid4())
-message_queue = Queue() 
+message_queue = Queue(maxsize=2) 
 
 manager = AsyncCallbackManager([])
 run_collector = RunCollectorCallbackHandler()
