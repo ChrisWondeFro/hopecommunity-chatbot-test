@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     redis_chat_host: str
     redis_chat_port : int
     redis_chat_pw : str
+    redis_chat_url:str
 
     redis_cache_host: str
     redis_cache_port : int
