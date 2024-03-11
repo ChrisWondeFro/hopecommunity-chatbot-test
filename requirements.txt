@@ -11,3 +11,5 @@ fastapi==0.100.0
 pydantic==1.10.11
 langchain==0.0.284 
 python-dotenv==1.0.0
+Jinja2==3.1.2
+
