@@ -158,3 +158,16 @@ async def generic_exception_handler(request, exc):
 @app.get("/")
 async def read_root():
     return {"message": "Welcome to the Chatbot API!"}
+
+
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+
+templates = Jinja2Templates(directory="templates")
+
+# Mount a static directory to serve static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/landing_page")
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
