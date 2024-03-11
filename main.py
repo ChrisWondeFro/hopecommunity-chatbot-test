@@ -22,7 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from langchain.schema.messages import SystemMessage
 from langchain.schema.runnable import RunnableConfig
 
-from langchain.vectorstores import SupabaseVectorStore
+from langchain.vectorstores.supabase import SupabaseVectorStore
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.memory.chat_message_histories import RedisChatMessageHistory
 from langchain.memory.chat_message_histories import SQLChatMessageHistory

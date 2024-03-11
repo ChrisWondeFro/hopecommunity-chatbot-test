@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* General styling */
+        body { 
+            background: linear-gradient(to right, #dadddd, #f1eeeb); 
+            font-family: Arial, sans-serif;
+        }
+        h1 { 
+            text-align: center; 
+            font-size: 24px; 
+            margin-bottom: 25px; 
+            color: #020913; 
+            font-weight: bold; 
+        }
+        /* Chat container */
+        #chat-container { 
+            max-width: 800px; 
+            margin: auto; 
+            border: 1px solid #eaebf2;
+            border-radius: 20px; 
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3); 
+            padding: 20px; 
+        }
+        /* Chat history */
+        #chat-history { 
+            height: 300px; 
+            border: 1px solid #e6e3e3; 
+            padding: 10px; 
+            overflow-y: scroll; 
+            margin-bottom: 10px; 
+            border-radius: 15px; 
+            background-color: #d3cbcb; 
+        }
+        /* Messages */
+        .message { 
+            max-width: 80%; 
+            padding: 15px; 
+            margin-bottom: 10px; 
+            border-radius: 25px; 
+            color: white; 
+            word-wrap: break-word; 
+            box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
+        }
+        .user { 
+            background-color: #643639; 
+            align-self: flex-end; 
+            margin-left: auto;
+            order: 2; 
+        }
+        .bot { 
+            background-color: #4f7b97; 
+            align-self: flex-start;
+            margin-right: auto; 
+            order: 1; 
+            color: #fff; 
+        }
+        /* Typing indicator */
+        #typing { 
+            display: none; 
+        }
+        /* Buttons */
+        button { 
+            background-color: #074199; 
+            color: white; 
+            padding: 9px 22px; 
+            margin: 5px; 
+            border: none; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover { 
+            background-color: #052e6a;
+            transform: scale(1.05);
+        }
+        input[type="text"] { 
+            padding: 15px; 
+            width: 95%; 
+            margin-bottom: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 25px; 
+            font-size: 18px;
+        }
+        #special-p {
+            font-size: 18px; 
+            font-weight: bold; 
+        }
+        .typing-indicator {
+          display: inline-block;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background-color: #333;
+          animation: typing 1.5s infinite;
+        }
+        .typing-indicator:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        .typing-indicator:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+        @keyframes typing {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h1>aichatbot@ethioco.org</h1>
+        <div id="chat-history"></div>
+        <div id="typing" style="display: none;">
+            <span class="typing-indicator"></span>
+            <span class="typing-indicator"></span>
+            <span class="typing-indicator"></span>
+          </div>
+        <input type="text" id="message-input" placeholder="Enter your message">
+        <button id="send-button">Send</button>
+        <p id="special-p">Quick answers to common questions:</p>
+        <button id="events">Annual events? 📅</button>
+        <button id="resources">Legal resources? 📘</button>
+        <button id="vision">Our vision? 📈</button>
+        <button id="donate">Donate? 📝</button>
+    </div>
+    <script>
+        function linkify(inputText) {
+            var replacedText = inputText;
+            var replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+            replacedText = replacedText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+            var replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+            replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+            var replacePattern3 = /(\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,6})/gim;
+            replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
+            return replacedText;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatHistory = document.getElementById('chat-history');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+            const typing = document.getElementById('typing');
+
+            messageInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage(messageInput.value);
+                }
+            });
+            
+            document.getElementById('events').addEventListener('click', () => sendMessage('Are there annual events or celebrations?'));
+            document.getElementById('resources').addEventListener('click', () => sendMessage('Are there any legal and/or family assistance resources?'));
+            document.getElementById('vision').addEventListener('click', () => sendMessage('Whats the vision and mission of the organization for the community?'));
+            document.getElementById('donate').addEventListener('click', () => sendMessage('Why should I donate?'));
+            
+            const sendMessage = async message => {
+                messageInput.value = ''; 
+                const timestamp = new Date().toLocaleTimeString();
+                let userMessage = document.createElement('div');
+                userMessage.classList.add('message', 'user');
+                userMessage.innerHTML = `You (${timestamp}): ${linkify(message)}`;
+
+                chatHistory.append(userMessage);
+                
+                typing.style.display = 'block';
+                
+                try {
+                    const response = await fetch(`http://127.0.0.1:8001/chat?input_message=${message}`);
+                    const data = await response.json();
+                    
+                    typing.style.display = 'none';
+                    
+                    const botMessage = document.createElement('div');
+                    botMessage.classList.add('message', 'bot');
+                    botMessage.innerHTML = `ChatBot (${timestamp}): ${makeLinksClickable(data.response.output)}`;
+
+                    chatHistory.append(botMessage);
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            };
+
+            sendButton.addEventListener('click', () => sendMessage(messageInput.value));
+        });
+    </script>
+</body>
+</html>
