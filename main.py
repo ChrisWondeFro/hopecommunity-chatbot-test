@@ -5,11 +5,12 @@ import uuid
 import logging
 import traceback
 from asyncio import Queue
-from pydantic import constr
 from config import settings
+from typing import Annotated
 from redis.client import Redis
-from pydantic import BaseModel
 from supabase import create_client
+from pydantic import BaseModel, constr
+
 
 from langchain.cache import RedisCache
 from langchain.schema import Generation
@@ -86,13 +87,17 @@ runnable_config = RunnableConfig(callbacks=[run_collector])
 def get_session():
     return RedisChatMessageHistory(session_id=str(uuid.uuid4()), ttl=None)
 
-class ChatInput(BaseModel):
-    text: constr(min_length=2, max_length=1000, to_lower=True, strip_whitespace=True)
+# Create the constrained string type
+ConstrainedStr = constr(min_length=2, max_length=1000, to_lower=True, strip_whitespace=True)
 
+class ChatInput(BaseModel):
+    text: Annotated[str, constr(min_length=2, max_length=1000, to_lower=True, strip_whitespace=True)]
+    
 @app.middleware("http")
 async def add_session(request: Request, call_next):
     response = await call_next(request)
     return response
+
 @app.get("/chat")
 async def chat(input_message: str): 
     await message_queue.put(input_message)
@@ -113,7 +118,7 @@ async def chat(input_message: str):
         system_message=system_message,
         extra_prompt_messages=[MessagesPlaceholder(variable_name="chat_history")]
     )
-    llm = ChatOpenAI(verbose=True, openai_api_key=OPENAI_API_KEY, model="gpt-3.5-turbo-16k-0613", temperature=0)
+    llm = ChatOpenAI(verbose=True, openai_api_key=OPENAI_API_KEY, model="gpt-3.5-turbo", temperature=0)
     memory = ConversationTokenBufferMemory(chat_memory=message_history, memory_key="chat_history", return_messages=True, llm=llm, max_token_limit=7000)
     #memory = ConversationSummaryBufferMemory(chat_memory=message_history, memory_key="chat_history", return_messages=True, llm=streaming_llm, max_token_limit=9000)
     #memory = ConversationBufferWindowMemory(memory_key="chat_history", return_messages=True)

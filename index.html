@@ -170,14 +170,14 @@
                 typing.style.display = 'block';
                 
                 try {
-                    const response = await fetch(`http://127.0.0.1:8001/chat?input_message=${message}`);
+                    const response = await fetch(`http://127.0.0.1:8000/chat?input_message=${message}`);
                     const data = await response.json();
                     
                     typing.style.display = 'none';
                     
                     const botMessage = document.createElement('div');
                     botMessage.classList.add('message', 'bot');
-                    botMessage.innerHTML = `ChatBot (${timestamp}): ${makeLinksClickable(data.response.output)}`;
+                    botMessage.innerHTML = `ChatBot (${timestamp}): ${linkify(data.response.output)}`;
 
                     chatHistory.append(botMessage);
                     chatHistory.scrollTop = chatHistory.scrollHeight;
